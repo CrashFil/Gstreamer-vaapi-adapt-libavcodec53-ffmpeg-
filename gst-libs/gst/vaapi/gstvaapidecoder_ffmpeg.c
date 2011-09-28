@@ -478,13 +478,17 @@ decode_frame(GstVaapiDecoderFfmpeg *ffdecoder, guchar *buf, guint buf_size)
     GstVaapiDisplay * const display = GST_VAAPI_DECODER_DISPLAY(ffdecoder);
     GstVaapiSurface *surface;
     int bytes_read, got_picture = 0;
+    AVPacket avpkt;
 
     GST_VAAPI_DISPLAY_LOCK(display);
-    bytes_read = avcodec_decode_video(
+    av_init_packet(&avpkt);
+    avpkt.data = buf;
+    avpkt.size = buf_size;
+    bytes_read = avcodec_decode_video2(
         priv->avctx,
         priv->frame,
         &got_picture,
-        buf, buf_size
+	&avpkt
     );
     GST_VAAPI_DISPLAY_UNLOCK(display);
     if (!got_picture)
@@ -530,12 +534,12 @@ gst_vaapi_decoder_ffmpeg_decode(GstVaapiDecoder *decoder, GstBuffer *buffer)
 
     if (priv->pctx) {
         do {
-            int parsed_size = av_parser_parse(
+            int parsed_size = av_parser_parse2(
                 priv->pctx,
                 priv->avctx,
                 &outbuf, &outbuf_size,
                 GST_BUFFER_DATA(buffer) + inbuf_ofs, inbuf_size,
-                inbuf_ts, inbuf_ts
+                inbuf_ts, inbuf_ts ,0
             );
             got_frame = outbuf && outbuf_size > 0;
 
