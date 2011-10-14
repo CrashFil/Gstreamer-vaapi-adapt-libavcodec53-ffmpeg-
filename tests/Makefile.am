@@ -20,7 +20,8 @@ TEST_MIX_CFLAGS		+= $(TEST_GLX_CFLAGS)
 endif
 
 TEST_LIBS = \
-	$(top_builddir)/gst-libs/gst/vaapi/libgstvaapi-@GST_MAJORMINOR@.la
+	$(top_builddir)/gst-libs/gst/vaapi/libgstvaapi-@GST_MAJORMINOR@.la \
+	-lgstreamer-0.10
 
 TEST_X11_LIBS = \
 	$(X11_LIBS) \
